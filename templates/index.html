@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Game Tracker 🎮</title>
+    <style>
+        .game-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-family: Arial, sans-serif;
+        }
+        
+        h1 {
+            color: #2d3748;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .game-form {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #game-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .game-form button {
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .game-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+        }
+        
+        .game-item.completed {
+            background-color: #f8fafc;
+            text-decoration: line-through;
+            color: #718096;
+        }
+        
+        .game-item span {
+            flex: 1;
+        }
+        
+        .game-item small {
+            color: #718096;
+            margin: 0 10px;
+        }
+        
+        .game-item a {
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .game-item a[aria-label="Delete game"] {
+            color: #e53e3e;
+        }
+        
+        .rating-form select {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 5px;
+        }
+        
+        .rating-form button {
+            background-color: #48bb78;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>My Game Tracker 🎮</h1>
+        
+        <!-- Form to Add a New Game -->
+        <form action="{{ url_for('add') }}" method="post" class="game-form">
+            <input type="text" id="game-input" name="title" placeholder="Add a new game..." required>
+            <button type="submit">Add Game</button>
+        </form>
+        
+        <div role="list" aria-label="Game items">
+            {% for game in games %}
+            <div role="listitem" class="game-item {% if game.completed %}completed{% endif %}">
+                <span>{{ game.title }}</span>
+                <small>{{ game.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                
+                <!-- Toggle Game Completion -->
+                <a href="{{ url_for('toggle', game_id=game.id) }}" aria-label="{% if game.completed %}Mark as playing{% else %}Mark as completed{% endif %}">
+                    {% if game.completed %}🔄{% else %}✅{% endif %}
+                </a>
+                
+                <!-- Rating System (Only for Completed Games) -->
+                {% if game.completed %}
+                <form action="{{ url_for('rate', game_id=game.id) }}" method="post" class="rating-form">
+                    <select name="rating">
+                        <option value="1" {% if game.rating == 1 %}selected{% endif %}>⭐</option>
+                        <option value="2" {% if game.rating == 2 %}selected{% endif %}>⭐⭐</option>
+                        <option value="3" {% if game.rating == 3 %}selected{% endif %}>⭐⭐⭐</option>
+                        <option value="4" {% if game.rating == 4 %}selected{% endif %}>⭐⭐⭐⭐</option>
+                        <option value="5" {% if game.rating == 5 %}selected{% endif %}>⭐⭐⭐⭐⭐</option>
+                    </select>
+                    <button type="submit">Rate</button>
+                </form>
+                {% endif %}
+                
+                <!-- Delete Game -->
+                <a href="{{ url_for('delete', game_id=game.id) }}" aria-label="Delete game">🗑️</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
